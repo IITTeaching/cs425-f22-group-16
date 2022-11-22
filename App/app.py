@@ -4,11 +4,6 @@ import psycopg2
 
 app = Flask(__name__)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:m2O2aBz!@localhost/bank'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# db = SQLAlchemy(app)
-
 connection = {
     'dbname': 'bank',
     'user': 'postgres',
@@ -16,18 +11,36 @@ connection = {
     'password': 'group16IIT',
     'port': 5432
     }
-conn = psycopg2.connect(**connection)
 
-def executeQuery(table, query, values):
+
+def updateTable(table, query, values):
     try:
+        conn = psycopg2.connect(**connection)
         cur = conn.cursor()
         cur.execute(query, values)
         conn.commit()
         count = cur.rowcount
         print(count, "Record inserted successfully into " + table + " table")
+        cur.close()
+        conn.close()
     except (Exception, psycopg2.Error) as error:
         print("Failed to insert record into " + table + " table:", error)
+    
 
+def fetchFromTable(table, query):
+    try:
+        conn = psycopg2.connect(**connection)
+        cur = conn.cursor()
+        cur.execute(query)
+        data = cur.fetchall()
+        count = cur.rowcount
+        print(count, "Records successfully fetched from " + table + " table")
+        cur.close()
+        conn.close()
+        return data
+    except (Exception, psycopg2.Error) as error:
+        print("Failed to fetch record from " + table + " table:", error)
+    
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -37,11 +50,34 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        table = "branch"
-        query = """INSERT INTO branch (branch_id, state, city, zip_code) VALUES (%s, %s, %s, %s)"""
-        values = ("B123", 'IL', 'Chicago', 60411)
-        executeQuery(table, query, values)
-        return render_template('login.html')
+        if username == 'admin' and password == 'iit2022':
+            return render_template('admin.html')
+        else:
+            return render_template('login.html')
+
+@app.route('/teller_home', methods=['POST'])
+def tellerHome():
+    table = 'teller'
+    query = """SELECT ssn::varchar, name FROM teller"""
+    data = fetchFromTable(table, query)
+    return render_template('teller_home.html', data=data)
+
+@app.route('/manager_home', methods=['POST'])
+def managerHome():
+    table = 'manager'
+    query = """SELECT ssn::varchar, name FROM manager"""
+    data = fetchFromTable(table, query)
+    return render_template('manager_home.html', data=data)
+
+@app.route('/manager_console', methods=['POST'])
+def managerConsole():
+    ssn = request.form['ssn']
+    table = 'manager'
+    query = """SELECT * FROM manager WHERE ssn=""" + ssn
+    data = fetchFromTable(table, query)
+    name = data[0][2]
+    return render_template('manager_console.html', data=data, name=name)
+
 if __name__ == '__main__':
     app.debug = True
     app.run()

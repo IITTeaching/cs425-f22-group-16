@@ -18,6 +18,12 @@ input[type=text], input[type=password] {
 .container {
     text-align: center;
     font-size: 2.5em;
+
+}
+
+.console{
+    text-align: center;
+    font-size: 2.5em;
 }
 
 #usr{
@@ -30,7 +36,7 @@ input[type=text], input[type=password] {
     margin-left: 9px;
     
 }
-#loginbtn{
+#btn{
     min-width: 100px;
     min-height: 60px;
     margin-top: 20px;
@@ -56,4 +62,29 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#teller{
+    min-width: 138px !important;
+    min-height: 50px !important;
+    background-color: #04AA6D;
+    color: white;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 25px;
+    padding: 14px 20px;
+    border: none;
+    cursor: pointer;
+    margin-top: 25px;
+}
+
+#manager{
+    min-width: 120px !important;
+    min-height: 50px !important;
+    background-color: #04AA6D;
+    color: white;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 25px;
+    padding: 14px 20px;
+    border: none;
+    cursor: pointer;
 }
