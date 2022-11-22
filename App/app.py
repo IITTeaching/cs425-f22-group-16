@@ -13,7 +13,7 @@ connection = {
     'dbname': 'bank',
     'user': 'postgres',
     'host': '127.0.0.1',
-    'password': '-----',
+    'password': 'group16IIT',
     'port': 5432
     }
 conn = psycopg2.connect(**connection)
