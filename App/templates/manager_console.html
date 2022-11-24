@@ -7,15 +7,17 @@
     <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
-    {%- if name -%}
-    <h1 id="title">Welcome, {{ name }}</h1>
+    {%- if mName -%}
+    <h1 id="title">Welcome, {{ mName }}</h1>
     {% endif %}
     <div class="console">
-            <button id="btn" type="submit">Add New Customer Account</button><br>
-            <button id="btn" type="submit">Add New Teller</button><br>
-            <button id="btn" type="submit">Manage Customer</button><br>
-            <button id="btn" type="submit">Manage Teller</button><br>
-            <button id="btn" type="submit">Analytics</button>
+        <form method="post" action="{{ url_for('managerProcess', managerName=mName) }}">
+            <input id="btn" type="submit" name="button" value="Add Customer"><br>
+            <input id="btn" type="submit" name="button" value="Add Teller"><br>
+            <input id="btn" type="submit" name="button" value="Manage Customer"><br>
+            <input id="btn" type="submit" name="button" value="Manage Teller"><br>
+            <input id="btn" type="submit" name="button" value="Analytics">
+        </form>
     </div>
 </body>
 </html>

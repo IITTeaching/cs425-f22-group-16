@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <h1 id="title">Managing a Customer</h1>
+    <div class="container">
+        <form action="{{ url_for('managerProcess', managerName=name) }}" method="post" id="login">
+            <label id="usrText" for="usr">Customer ID:</label>
+            <input type="text" id="usr" name="c_id" required><br>
+            <input id="btn" type="submit" name="manageCustomer" value="Search">
+        </form>
+    </div>
+</body>
+</html>
+
