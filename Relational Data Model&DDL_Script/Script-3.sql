@@ -96,13 +96,13 @@ CREATE TABLE hasAccount
 
 CREATE TABLE transact 
 	(
-	 trans_id	  NUMERIC(6),
+	 trans_id	  integer GENERATED ALWAYS AS IDENTITY,
 	 acc_id       NUMERIC(6) NOT NULL,
 	 trans_type   char(12),
 	 amount       NUMERIC(8,2),
 	 description  timestamp,
-	 t_from       char(10),
-	 t_to         char(10),
+	 t_from       char(20),
+	 t_to         char(20),
 	 PRIMARY KEY(trans_id),
 	 FOREIGN KEY (acc_id) REFERENCES account
 	 	ON DELETE CASCADE
