@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    
+    <h1 id="title">Choose the Analytic Option Below </h1>
+    <div class="console">
+        <form method="post" action="{{ url_for('managerProcess', managerName=mName) }}">
+            <input id="btn" type="submit" name="analytic" value="Analyze Customer Net Salary"><br>
+            <input id="btn" type="submit" name="analytic" value="Analyze Customer Average Interest Rate"><br>
+            <input id="btn" type="submit" name="analytic" value="Analyze Branch Usage"><br>
+    
+        </form>
+    </div>
+</body>
+</html>
