@@ -103,6 +103,7 @@ def managerProcess(managerName):
     addCustomer = False
     addTeller = False
     manageCustomer = False
+    manageTeller = False
     analytics = False
 
     if request.form.get('button', None) is not None:
@@ -117,9 +118,12 @@ def managerProcess(managerName):
     if request.form.get('manageCustomer', None) is not None:
         manageCustomer = True 
         print("Manage customer process deteced.")
-    if request.form.get('Analytics', None) is not None:
+    if request.form.get('manageTeller', None) is not None:
+        manageTeller = True 
+        print("Manage Teller process deteced.")
+    if request.form.get('analytic', None) is not None:
         analytics = True 
-        print("Manage customer process deteced.")
+        print("Analytics process deteced.")
 
     #This is only true when the manager clicks on a button inside of the manager console.
     if managerAction:
@@ -130,7 +134,11 @@ def managerProcess(managerName):
             return render_template('add_teller.html', name=managerName)
         if process == 'Manage Customer':
             return render_template('manage_customer.html', name=managerName)
-        #TODO: Check if the process == 'Analytics' and return the HTML page. (HTML page needs to be created)
+        if process == 'Manage Teller':
+            return render_template('manage_teller.html',name=managerName)
+        if process == 'Analytics':
+            return render_template('analytics.html', name=managerName)
+       #TODO: Check if the process == 'Analytics' and return the HTML page. (HTML page needs to be created)
 
     #This is only true when the manager adds a customer after filling out the customer information.
     if addCustomer:
@@ -182,6 +190,24 @@ def managerProcess(managerName):
         else:
             #TODO: Create a HTML page that shows that the process failed. And return it here. 
             return "<h1>CUSTOMER DOES NOT EXIST.</h1>"
+    if manageTeller:
+        t_id =request.form['t_id']
+        table = 'teller'
+        query = f"""SELECT * FROM teller where ssn = '{t_id}'"""
+        data = fetchFromTable(table, query)
+        print(data)
+        
+        if len(data) > 0:
+            data = [str(x).strip() for x in data[0]] #This is basically taking a list with format [(x),(y),(z)] and changing it to [x, y, z] while also removing any existing whitespace.
+            headings = ("Teller ID", "Branch ID", "Name", "State", "City", "Zip Code", "Salary")
+            return render_template('manager_tinfo.html', data=data, headings=headings)
+        else:
+            #TODO: Create a HTML page that shows that the process failed. And return it here. 
+            return render_template('fail.html', name= managerName)
+    if analytics:
+        abutton =request.form['analytic']
+        print("Analytics is true")
+        return str(abutton)
     #TODO: Create an if statement to check for the 'analytics' boolean variable being True here
     #If any of the if statements above are not true, then we just return back to manager console.
     return render_template('manager_console.html', mName=managerName)
