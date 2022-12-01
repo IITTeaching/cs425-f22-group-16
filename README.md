@@ -11,5 +11,5 @@
 
 ### We created our web app using the Flask web framework in Python.
 
-### Hosted on a raspberry pi server here: http://192.168.0.116:5000/
+### Both our app and database is hosted on a raspberry pi server here: http://192.168.0.116:5000/
 
