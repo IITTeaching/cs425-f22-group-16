@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/../../static/style.css">
+</head>
+<body>
+    <h1 id="title">Deposit</h1>
+    
+    <div class="container">
+        <form method="post" action="{{ url_for('customerProcess', name=name, data=data) }}">
+            <h3> Select an Account To Deposit To:</h3>
+            <select id="dropdown" name="account">
+                {% for i in range(0, accIDs|length) %}
+                  <option value="{{ accIDs[i] }}">{{ accIDs[i] }} - {{ accTypes[i] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Deposit Amount:</label>
+            <input type="text" id="usr" name="depositAmount" required><br>
+            <input id="btn" type="submit" name="deposit" value="Submit Deposit">
+        </form>
+    </div>
+</body>
+</html>

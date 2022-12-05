@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
+import ast
 import psycopg2
 
 #We are using a Python library called Flask which is used to create web applications.
@@ -6,7 +7,6 @@ import psycopg2
 
 #This creates an instance of our app.
 app = Flask(__name__)  
-
 #To be used to connect to our database using Psycopg2. This only works locally. 
 connection = {
     'dbname': 'bank',
@@ -60,8 +60,15 @@ def login():
         password = request.form['password']
         if username == 'admin' and password == 'iit2022':
             return render_template('admin.html')
-        else:
-            return render_template('login.html')
+        elif password == 'customer':
+            table = 'customer'
+            query = f"""SELECT * FROM customer where c_id = '{username}'"""
+            data = fetchFromTable(table, query)
+            if len(data) > 0:
+                data = [str(x).strip() for x in data[0]]
+                name = data[1]
+                return render_template('customer_console.html', name=name, data=data)
+            return "<h1>Incorrect Login Credentials Provided</h1>"
 
 #A route to the teller home page.
 @app.route('/teller_home', methods=['POST'])
@@ -71,6 +78,18 @@ def tellerHome():
     data = fetchFromTable(table, query)
     return render_template('teller_home.html', data=data)
 
+@app.route('/teller_console', methods = ['POST'])
+def tellerConsole():
+    SSN = request.form['ssn']
+    table = 'teller_console'
+    query = f"""SELECT name FROM teller WHERE ssn = '{SSN}'"""
+    name = fetchFromTable(table, query)
+    if name is not None:
+        return render_template('teller_console.html', name=name[0][0])
+
+@app.route('/teller_process', methods = ['POST', 'GET'])
+def tellerProcess():
+    return "TODO"
 #A route to the manager home page. Displays the available managers one can choose to login as
 @app.route('/manager_home', methods=['POST'])
 def managerHome():
@@ -89,6 +108,168 @@ def managerConsole():
     mName = data[0][2]
     return render_template('manager_console.html', mName=mName)
 
+@app.route('/customer_process/<name>/<data>', methods=['POST', 'GET'])
+def customerProcess(name,data):
+    if isinstance(data,str):
+        customerData = ast.literal_eval(data)
+    customerAction = False
+    myAccounts = False
+    statements = False
+    deposit = False
+    withdrawal = False
+    transfer = False
+    externalTransfer = False
+    updateAccount = False
+
+    if request.form.get('button', None) is not None:
+        customerAction = True
+        print("Intial Customer Action detected")
+    if request.form.get('myAccounts', None) is not None:
+        myAccounts = True
+    if request.form.get('statements', None) is not None:
+        statements = True
+    if request.form.get('deposit', None) is not None:
+        deposit = True 
+    if request.form.get('withdraw', None) is not None:
+        withdrawal = True 
+    if request.form.get('transfer', None) is not None:
+        transfer = True 
+    if request.form.get('externalTransfer', None) is not None:
+        externalTransfer = True
+    if request.form.get('updateAccount', None) is not None:
+        updateAccount = True
+    
+    if customerAction:
+        process = request.form['button']
+        if process == 'My Accounts':
+            table = "hasaccount"
+            c_id = customerData[0]
+            query = f"""SELECT acc_id::int FROM hasaccount WHERE c_id='{c_id}'"""
+            customerAccounts = fetchFromTable(table, query)
+            if len(customerAccounts) > 0:
+                acc_id = customerAccounts[0][0]
+                table = 'account'
+                lst =[]
+                for i in range(0, len(customerAccounts)):
+                    query = f"""SELECT * FROM account WHERE acc_id='{customerAccounts[i][0]}'"""
+                    allAccs = fetchFromTable(table, query)
+                    j = 0
+                    for x in allAccs:
+                        allAccs = [str(i).strip() for i in x]
+                        lst.append(allAccs)
+                print(lst)
+                headings = ("Account ID: ", "Account Type: ", "Balance: $", "Interest Rate: ")
+                return render_template('customer_bank_accs.html', data=lst, headings=headings)
+        if process == 'Statements':
+            return "<h1>TODO</h1>"
+            #return render_template('customer_statements.html', name=name)
+        if process == 'Deposit':
+            table = "hasaccount"
+            c_id = customerData[0]
+            query = f"""SELECT acc_id::int FROM hasaccount WHERE c_id='{c_id}'"""
+            accIDs = fetchFromTable(table, query)
+            if len(accIDs) > 0:
+                accIDs = [id[0] for id in accIDs]
+                accTypes = []
+                table = 'account'
+                for i in range(0,len(accIDs)):
+                    query = f"""SELECT acc_type FROM account WHERE acc_id='{accIDs[i]}'"""
+                    accType = fetchFromTable(table, query)
+                    print(accType)
+                    if len(accType) > 0:
+                        accTypes.append(accType[0][0].strip().capitalize())
+                return render_template('customer_deposit.html', accIDs=accIDs, accTypes=accTypes, name=name, data=customerData)
+        if process == 'Withdrawal':
+            table = "hasaccount"
+            c_id = customerData[0]
+            query = f"""SELECT acc_id::int FROM hasaccount WHERE c_id='{c_id}'"""
+            accIDs = fetchFromTable(table, query)
+            if len(accIDs) > 0:
+                accIDs = [id[0] for id in accIDs]
+                accTypes = []
+                table = 'account'
+                for i in range(0,len(accIDs)):
+                    query = f"""SELECT acc_type FROM account WHERE acc_id='{accIDs[i]}'"""
+                    accType = fetchFromTable(table, query)
+                    if len(accType) > 0:
+                        accTypes.append(accType[0][0].strip().capitalize())
+                return render_template('customer_wthdrwl.html', accIDs=accIDs, accTypes=accTypes, name=name, data=customerData)
+        if process == 'Transfer':
+            table = "hasaccount"
+            c_id = customerData[0]
+            query = f"""SELECT acc_id::int FROM hasaccount WHERE c_id='{c_id}'"""
+            accIDs = fetchFromTable(table, query)
+            if len(accIDs) > 0:
+                accIDs = [id[0] for id in accIDs]
+                accTypes = []
+                table = 'account'
+                for i in range(0,len(accIDs)):
+                    query = f"""SELECT acc_type FROM account WHERE acc_id='{accIDs[i]}'"""
+                    accType = fetchFromTable(table, query)
+                    if len(accType) > 0:
+                        accTypes.append(accType[0][0].strip().capitalize())
+                return render_template('customer_transfer.html', accIDs=accIDs, accTypes=accTypes, name=name, data=customerData)
+        if process == 'External Transfer':
+            return "<h1>TODO</h1>"
+        if process == 'Update Account Info':
+            table = 'customer'
+            query = f"""SELECT * FROM customer where c_id = '{customerData[0]}'"""
+            cInfo = fetchFromTable(table, query)
+            if len(cInfo) > 0:
+                 cInfo = [str(x).strip() for x in cInfo[0]] #This is basically taking a list with format [(x),(y),(z)] and changing it to [x, y, z] while also removing any existing whitespace.
+                 headings = ("Customer ID", "Name", "State", "City", "Zip Code", "Salary")
+                 return render_template('customer_account.html', name=name, cInfo=cInfo, headings=headings, data=customerData)
+            else:
+                return "HELLO"
+                #TODO: Return false html here
+    if statements:
+        return "TODO"
+        #Use timestamps
+    if deposit:
+        accID = request.form['account']
+        amount = request.form['depositAmount']
+        table = 'account'
+        query = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
+        values = (float(amount), str(accID))
+        print(values)
+        updateAcc = updateTable(table, query, values)
+        if updateAcc > 0:
+            return render_template('success_cust.html', name=name, data=customerData)
+    if withdrawal:
+        accID = request.form['account']
+        amount = request.form['withdrawAmount']
+        table = 'account'
+        query = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
+        values = (float(amount), str(accID))
+        updateAcc = updateTable(table, query, values)
+        if updateAcc > 0:
+            return render_template('success_cust.html', name=name, data=customerData)
+    if transfer:
+        fromAcc = request.form['accountFrom']
+        toAcc = request.form['accountTo']
+        amount = request.form['transferAmount']
+        table = 'account'
+        queryOne = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
+        queryTwo = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
+        valuesOne = (float(amount), str(fromAcc))
+        valuesTwo = (float(amount), str(toAcc))
+        if fromAcc != toAcc:
+            updateFromAcc = updateTable(table, queryOne, valuesOne)
+            updateToAcc = updateTable(table, queryTwo, valuesTwo)
+            if updateFromAcc > 0 and updateToAcc > 0:
+                return render_template('success_cust.html', name=name, data=customerData)
+    if externalTransfer:
+        return
+    if updateAccount:
+        state = request.form['state']
+        city = request.form['city']
+        zip = request.form['zipcode']
+        table = "customer"
+        query = """UPDATE customer SET state = (%s), city = (%s), zip_code = (%s) WHERE c_id = (%s)"""
+        values = (state, city, zip, customerData[0])
+        updateCustomer = updateTable(table, query, values)
+        return "SUCCESS"
+    return render_template('customer_console.html', name=name, data=customerData)
 
 ##This route/function is for when a manager clicks on button inside of the manager console.
 ## In here the following actions are handled:
@@ -138,7 +319,6 @@ def managerProcess(managerName):
             return render_template('manage_teller.html',name=managerName)
         if process == 'Analytics':
             return render_template('analytics.html', name=managerName)
-       #TODO: Check if the process == 'Analytics' and return the HTML page. (HTML page needs to be created)
 
     #This is only true when the manager adds a customer after filling out the customer information.
     if addCustomer:
@@ -183,33 +363,28 @@ def managerProcess(managerName):
         table = 'customer'
         query = f"""SELECT * FROM customer where c_id = '{c_id}'"""
         data = fetchFromTable(table, query)
-        if data is not None:
+        if len(data) > 0:
             data = [str(x).strip() for x in data[0]] #This is basically taking a list with format [(x),(y),(z)] and changing it to [x, y, z] while also removing any existing whitespace.
             headings = ("Customer ID", "Name", "State", "City", "Zip Code", "Salary")
             return render_template('manager_cinfo.html', data=data, headings=headings)
         else:
-            #TODO: Create a HTML page that shows that the process failed. And return it here. 
-            return "<h1>CUSTOMER DOES NOT EXIST.</h1>"
+            return render_template('fail.html', name= managerName)
     if manageTeller:
         t_id =request.form['t_id']
         table = 'teller'
         query = f"""SELECT * FROM teller where ssn = '{t_id}'"""
         data = fetchFromTable(table, query)
-        print(data)
-        
+
         if len(data) > 0:
             data = [str(x).strip() for x in data[0]] #This is basically taking a list with format [(x),(y),(z)] and changing it to [x, y, z] while also removing any existing whitespace.
             headings = ("Teller ID", "Branch ID", "Name", "State", "City", "Zip Code", "Salary")
             return render_template('manager_tinfo.html', data=data, headings=headings)
         else:
-            #TODO: Create a HTML page that shows that the process failed. And return it here. 
             return render_template('fail.html', name= managerName)
     if analytics:
-        abutton =request.form['analytic']
+        analyticOption = request.form['analytic']
         print("Analytics is true")
-        return str(abutton)
-    #TODO: Create an if statement to check for the 'analytics' boolean variable being True here
-    #If any of the if statements above are not true, then we just return back to manager console.
+        return "Chose option: " + str(analyticOption)
     return render_template('manager_console.html', mName=managerName)
 
 #Run the app

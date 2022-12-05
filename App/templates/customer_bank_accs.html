@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/../../static/style.css">
+</head>
+<body>
+    <h1 id="title">Your Account(s)</h1>
+    
+    <div class="container">
+        <form method="post" action="">
+            {% for i in range(0,data|length) %}
+            <fieldset>
+                <legend>{{ data[i][1]|capitalize }} Account Info:</legend>
+                    <div>
+                        {% for j in range(0,headings|length) %}
+                        
+                        <ul>{{ headings[j] }}{{ data[i][j] }}</ul>
+                        {% endfor %}
+                    </div>
+                <button id="btn" type="submit">Deactivate</button>
+            </fieldset>
+            {% endfor %}
+       </form>
+    </div>
+</body>
+</html>

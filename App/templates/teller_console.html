@@ -11,8 +11,12 @@
     <h1 id="title">Welcome, {{ name }}</h1>
     {% endif %}
     <div class="console">
-            <button id="btn" type="submit">Manage Customer</button><br>
-            <button id="btn" type="submit">My Informationr</button>
+        <form method="post" action="{{ url_for('tellerProcess', name=name) }}">
+            <input id="btn" type="submit" name="button" value="Manage Customer"><br>
+            <input id="btn" type="submit" name="button" value="Deposit"><br>
+            <input id="btn" type="submit" name="button" value="Withdrawal"><br>
+            <input id="btn" type="submit" name="button" value="Transfer"><br>
+            <input id="btn" type="submit" name="button" value="Update My Account">
+        </form>
     </div>
 </body>
-</html>
