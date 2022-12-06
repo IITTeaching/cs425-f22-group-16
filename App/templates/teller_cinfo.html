@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/style.css">
+</head>
+<body>
+    <h1 id="title">Account Details For {{ cInfo[1] }}</h1>
+    
+    <div class="container">
+        <form method="post" action="{{ url_for('tellerProcess', name=name, ssn=ssn) }}">
+        <fieldset>
+            <legend>Account Info:</legend>
+                {% for i in range(0,5) %}
+                    <div>
+                        <ul>{{ headings[i] }}: {{ cInfo[i] }}</ul>
+                    </div>
+                {% endfor %}
+                <input id="btn" type="submit" name="deleteCustomer" value="Delete - {{ cInfo[0] }}">
+            </fieldset><br>
+        </form>
+        {% if data is defined and data|length > 0 %}
+            <h3>Account(s)</h3>
+            {% for i in range(0,data|length) %}
+            <fieldset>
+                <legend>{{ data[i][1]|capitalize }} Account:</legend>
+                    <div>
+                        {% for j in range(0,headingsTwo|length) %}
+                        
+                        <ul>{{ headingsTwo[j] }}{{ data[i][j] }}</ul>
+                        {% endfor %}
+                    </div>
+            </fieldset>
+            {% endfor %}
+        {% endif %}
+        <form method="post" action="{{ url_for('tellerProcess', name=name, ssn=ssn) }}">
+            <h3>Update Address:</h3>
+            <label id="usrText" for="usr" maxlength="2">State:</label>
+            <input type="text" id="usr" name="state" required>
+            <label id="usrText" for="usr">City:</label>
+            <input type="text" id="usr" name="city" required>
+            <label id="usrText" for="usr">Zip Code:</label>
+            <input type="text" id="usr" name="zipcode" required>
+            <label id="usrText" for="usr">ID:</label>
+            <input type="text" id ="usr" name = "c_id" value="{{ cInfo[0] }}" readonly>
+            <input id="btn" type="submit" name="updateAccount" value="Update"><br>
+        </form>
+
+        <form method="post" action="{{ url_for('tellerProcess', name=name, ssn=ssn) }}">
+            <hr class="solid">
+            <h3>Open Account:</h3>
+            <label id="usrText" for="usr">ID:</label>
+            <input type="text" id ="usr" name = "c_id" value="{{ cInfo[0] }}" readonly>
+            <label id="usrText" for="usr">Account Type:</label>
+            <select id="dropdown" name="acc_type">
+                <option value="checkings">Checkings</option>
+                <option value="savings">Savings</option>
+            </select>
+            <label id="usrText" for="usr">Balance:</label>
+            <input type="text" id="usr" name="balance" required>
+            <label id="usrText" for="usr">Interest Rate:</label>
+            <input type="text" id="usr" name="int_rate" required>
+            <input id="btn" type="submit" name="openAccount" value="Open Account">
+       </form>
+    </div>
+</body>
+</html>

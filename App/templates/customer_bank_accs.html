@@ -10,7 +10,7 @@
     <h1 id="title">Your Account(s)</h1>
     
     <div class="container">
-        <form method="post" action="">
+        <form method="post" action="{{ url_for('customerProcess', name=name, data=cInfo) }}">
             {% for i in range(0,data|length) %}
             <fieldset>
                 <legend>{{ data[i][1]|capitalize }} Account Info:</legend>
@@ -20,7 +20,7 @@
                         <ul>{{ headings[j] }}{{ data[i][j] }}</ul>
                         {% endfor %}
                     </div>
-                <button id="btn" type="submit">Deactivate</button>
+                <input id="btn" type="submit" name="myAccounts" value="Delete Account - {{ data[i][0] }}">
             </fieldset>
             {% endfor %}
        </form>

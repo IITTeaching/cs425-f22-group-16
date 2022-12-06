@@ -14,14 +14,20 @@
             <input type="text" id="usr" name="c_id" required><br>
             <label id="usrText" for="usr">Customer Name:</label>
             <input type="text" id="usr" name="name" required><br>
-            <label id="usrText" for="usr">State:</label>
+            <label id="usrText" for="usr" maxlength="2">State:</label>
             <input type="text" id="usr" name="state" required><br>
             <label id="usrText" for="usr">City:</label>
             <input type="text" id="usr" name="city" required><br>
-            <label id="usrText" for="usr">Zip Code:</label>
+            <label id="usrText" for="usr" maxlength="2">Zip Code:</label>
             <input type="text" id="usr" name="zip_code" required><br>
             <label id="usrText" for="usr">Salary:</label>
             <input type="text" id="usr" name="salary" required><br>
+            <label id="usrText" for="usr">Branch:</label>
+            <select id="dropdown" name="branch">
+                {% for i in range(0, branches|length) %}
+                  <option value="{{ branches[i] }}">{{ branches[i] }}</option>
+                {% endfor %}
+            </select><br>
             <input id="btn" type="submit" name="addCustomer" value="Submit">
         </form>
     </div>

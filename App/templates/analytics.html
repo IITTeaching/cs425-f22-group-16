@@ -4,18 +4,19 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="../../static/style.css">
 </head>
 <body>
-    
-    <h1 id="title">Choose the Analytic Option Below </h1>
-    <div class="console">
-        <form method="post" action="{{ url_for('managerProcess', managerName=name) }}">
-            <input id="btn" type="submit" name="analytic" value="Analyze Customer Net Salary"><br>
-            <input id="btn" type="submit" name="analytic" value="Analyze Customer Average Interest Rate"><br>
-            <input id="btn" type="submit" name="analytic" value="Analyze Branch Usage"><br>
-    
-        </form>
+    <div class="container">
+        <fieldset>
+            <legend>{{ title }}:</legend>
+            {% for i in range(0,data|length) %}
+                <div>
+                    <ul>{{ data[i][0] }} : {{ data[i][1] }}</ul>
+                </div>
+            {% endfor %}
+        </fieldset><br>
+        <h2>Go Back To Continue.</h2>
     </div>
 </body>
 </html>

@@ -15,11 +15,74 @@
             <input id="btn" type="submit" name="button" value="Add Customer"><br>
             <input id="btn" type="submit" name="button" value="Add Teller"><br>
             <input id="btn" type="submit" name="button" value="Manage Customer"><br>
-            <input id="btn" type="submit" name="button" value="Manage Teller"><br>
+            <input id="btn" type="submit" name="button" value="Manage Teller"><br><br>
+            <hr class="solid">
+            <label id="usrText" for="usr">Account ID:</label>
+            <select id="dropdown" name="accID">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i] }} ">{{ accounts[i] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Amount:</label>
+            <input type="text" id="usr" name="amount" pattern="[^()/><\][\\\x22,;|]+"><br>
             <input id="btn" type="submit" name="button" value="Deposit"><br>
+            <hr class="solid">
+            <label id="usrText" for="usr">Account ID:</label>
+            <select id="dropdown" name="accIDW">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i] }} ">{{ accounts[i] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Amount:</label>
+            <input type="text" id="usr" name="amountW"><br>
             <input id="btn" type="submit" name="button" value="Withdrawal"><br>
+            <hr class="solid">
+            <label id="usrText" for="usr">Account ID (From):</label>
+            <select id="dropdown" name="accIDFrom">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i] }} ">{{ accounts[i] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Account ID (To):</label>
+            <select id="dropdown" name="accIDTo">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i] }} ">{{ accounts[i] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Amount:</label>
+            <input type="text" id="usr" name="amountTrans"><br>
             <input id="btn" type="submit" name="button" value="Transfer"><br>
-            <input id="btn" type="submit" name="button" value="Analytics">
+            
+            <hr class="solid">
+
+            <label id="usrText" for="usr">Account ID - Branch ID (From):</label>
+            <select id="dropdown" name="accIDFromExt">
+                {% for i in range(0, accs|length) %}
+                  <option value="{{ accs[i][0] }} - {{ accs[i][1] }}">{{ accs[i][0] }} - {{ accs[i][1] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Account ID - Branch ID (To):</label>
+            <select id="dropdown" name="accIDToExt">
+                {% for i in range(0, accs|length) %}
+                  <option value="{{ accs[i][0] }} - {{ accs[i][1] }}">{{ accs[i][0] }} - {{ accs[i][1] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Amount:</label>
+            <input type="text" id="usr" name="amountExtTrans"><br>
+            <input id="btn" type="submit" name="button" value="Submit External Transfer"><br>
+
+        </form>
+        <form method="post" action="{{ url_for('managerProcess', managerName=mName) }}">
+            <hr class="solid">
+            <h2> Bank Analytics </h2>
+            <input id="btn" type="submit" name="analytics" value="Analyze Customer Average Salary Across All Branches">
+            <input id="btn" type="submit" name="analytics" value="Analyze Customer Average Salary For Each Branch"><br>
+            <input id="btn" type="submit" name="analytics" value="Analyze Customer Average Interest Rate Across All Branches">
+            <input id="btn" type="submit" name="analytics" value="Analyze Customer Average Interest Rate For Each Branch"><br>
+            <input id="btn" type="submit" name="analytics" value="Analyze Branch Usage Statistics"><br>
+            <input id="btn" type="submit" name="analytics" value="Analyze Number of Transactions Per Branch"><br>
+            <input id="btn" type="submit" name="analytics" value="Analyze Customers Eligible For A Fee (balance < $50.00)"><br>
+            <input id="btn" type="submit" name="analytics" value="Analyze Total Balance For Each Customer Across All Accounts"><br>
         </form>
     </div>
 </body>

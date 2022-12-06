@@ -11,11 +11,68 @@
     <h1 id="title">Welcome, {{ name }}</h1>
     {% endif %}
     <div class="console">
-        <form method="post" action="{{ url_for('tellerProcess', name=name) }}">
+        <form method="post" action="{{ url_for('tellerProcess', name=name, ssn=ssn) }}">
+            <input id="btn" type="submit" name="button" value="Add Customer"><br>
+            <hr class="solid">
+            <label id="usrText" for="usr">Customer ID:</label>
+            <input type="text" id="usr" name="c_id"><br>
             <input id="btn" type="submit" name="button" value="Manage Customer"><br>
+            <hr class="solid">
+            <label id="usrText" for="usr">Account ID:</label>
+            <select id="dropdown" name="accID">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i][0] }} ">{{ accounts[i][0] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Amount:</label>
+            <input type="text" id="usr" name="amount"><br>
             <input id="btn" type="submit" name="button" value="Deposit"><br>
+
+            <hr class="solid">
+            <label id="usrText" for="usr">Account ID:</label>
+            <select id="dropdown" name="accIDW">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i][0] }} ">{{ accounts[i][0] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Amount:</label>
+            <input type="text" id="usr" name="amountW"><br>
             <input id="btn" type="submit" name="button" value="Withdrawal"><br>
+
+            <hr class="solid">
+            <label id="usrText" for="usr">Account ID (From):</label>
+            <select id="dropdown" name="accIDFrom">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i][0] }} ">{{ accounts[i][0] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Account ID (To):</label>
+            <select id="dropdown" name="accIDTo">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i][0] }} ">{{ accounts[i][0] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Amount:</label>
+            <input type="text" id="usr" name="amountTrans"><br>
             <input id="btn" type="submit" name="button" value="Transfer"><br>
+
+            <hr class="solid">
+            <label id="usrText" for="usr">Account ID - Branch ID (From):</label>
+            <select id="dropdown" name="accIDFromExt">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i][0] }} - {{ accounts[i][1] }}">{{ accounts[i][0] }} - {{ accounts[i][1] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Account ID - Branch ID (To):</label>
+            <select id="dropdown" name="accIDToExt">
+                {% for i in range(0, accounts|length) %}
+                  <option value="{{ accounts[i][0] }} - {{ accounts[i][1] }}">{{ accounts[i][0] }} - {{ accounts[i][1] }}</option>
+                {% endfor %}
+            </select><br>
+            <label id="usrText" for="usr">Amount:</label>
+            <input type="text" id="usr" name="amountExtTrans"><br>
+            <input id="btn" type="submit" name="button" value="Submit External Transfer"><br>
+            <hr class="solid">
             <input id="btn" type="submit" name="button" value="Update My Account">
         </form>
     </div>

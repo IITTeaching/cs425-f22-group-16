@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/../../static/style.css">
+</head>
+<body>
+    <h1 id="title">External Transfer</h1>
+    
+    <div class="container">
+        <form method="post" action="{{ url_for('customerProcess', name=name, data=data) }}">
+            <h3> Transfer From:</h3>
+            <select id="dropdown" name="accountFrom">
+                {% for i in range(0, accIDs|length) %}
+                  <option value="{{ accIDs[i] }}">{{ accIDs[i] }}</option>
+                {% endfor %}
+            </select><br>
+            <h3> Transfer To External Account:</h3>
+            <select id="dropdown" name="accountTo">
+                {% for i in range(0, extAccsIDs|length) %}
+                  <option value="{{ extAccsIDs[i] }}">{{ extAccsIDs[i] }}</option>
+                {% endfor %}
+            </select><br>
+            
+            <label id="usrText" for="usr">Transfer Amount:</label>
+            <input type="text" id="usr" name="transferAmount" required><br>
+            <input id="btn" type="submit" name="externalTransfer" value="Submit Transfer">
+        </form>
+    </div>
+</body>
+</html>

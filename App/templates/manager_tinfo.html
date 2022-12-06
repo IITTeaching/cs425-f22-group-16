@@ -10,7 +10,7 @@
     <h1 id="title">Teller Information for {{ data[2] }}</h1>
     
     <div class="container">
-        <form method="post" action="/manager_console">
+        <form method="post" action="{{ url_for('managerProcess', managerName=name) }}">
             <fieldset>
                 <legend>Teller Info:</legend>
                 {% for i in range(0,7) %}
@@ -18,10 +18,23 @@
                         <ul>{{ headings[i] }}: {{ data[i] }}</ul>
                     </div>
                 {% endfor %}
-                <button id="btn" type="submit">Update</button>
-                <button id="btn" type="submit">Deactivate</button>
+                <input id="btn" type="submit" name="updateTeller" value="Delete - {{ data[0] }}">
             </fieldset>
        </form>
+       <hr class="solid">
+       <form method="post" action="{{ url_for('managerProcess', managerName=name) }}">
+           <h3>Update Teller:</h3>
+           <label id="usrText" for="usr" maxlength="2">State (e.g IL):</label>
+           <input type="text" id="usr" name="state" required>
+           <label id="usrText" for="usr">City:</label>
+           <input type="text" id="usr" name="city" required>
+           <label id="usrText" for="usr">Zip Code:</label>
+           <input type="text" id="usr" name="zipcode" required>
+           <label id="usrText" for="usr">SSN:</label>
+           <input type="text" id ="usr" name = "ssn" value="{{ data[0] }}" readonly>
+           <input id="btn" type="submit" name="updateTeller" value="Update"><br>
+       </form>
+       <hr class="solid">
     </div>
 </body>
 </html>

@@ -11,8 +11,13 @@
     <div class="container">
         <form action="{{ url_for('managerProcess', managerName=name) }}" method="post" id="login">
             <label id="usrText" for="usr">Teller ID:</label>
-            <input type="text" id="usr" name="t_id" required><br>
-            <input id="btn" type="submit" name="manageTeller" value="Search">
+            <select id="dropdown" name="t_id">
+                {% for i in range(0, tellers|length) %}
+                {% set ssn = tellers[i][1]|string %}
+                  <option value="{{ tellers[i][1] }}">{{ tellers[i][0] }} - {{ ssn[-4:] }}</option>
+                {% endfor %}
+            </select><br>
+            <input id="btn" type="submit" name="manageTeller" value="Manager Teller">
         </form>
     </div>
 </body>

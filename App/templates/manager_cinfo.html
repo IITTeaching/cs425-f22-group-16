@@ -10,7 +10,7 @@
     <h1 id="title">Customer Account for {{ data[1] }}</h1>
     
     <div class="container">
-        <form method="post" action="/manager_console">
+        <form method="post" action="{{ url_for('managerProcess', managerName=name) }}">
             <fieldset>
                 <legend>Account Info:</legend>
                 {% for i in range(0,5) %}
@@ -18,10 +18,54 @@
                         <ul>{{ headings[i] }}: {{ data[i] }}</ul>
                     </div>
                 {% endfor %}
-                <button id="btn" type="submit">Update</button>
-                <button id="btn" type="submit">Deactivate</button>
+                <input id="btn" type="submit" name="updateCustomer" value="Delete - {{ data[0] }}">
             </fieldset>
        </form>
+       {% if accs is defined and accs|length > 0 %}
+       <hr class="solid">
+       <h3>Bank Account(s)</h3>
+       {% for i in range(0,accs|length) %}
+       <fieldset>
+           <legend>{{ accs[i][1]|capitalize }} Account:</legend>
+               <div>
+                   {% for j in range(0,headingsTwo|length) %}
+                   
+                   <ul>{{ headingsTwo[j] }}{{ accs[i][j] }}</ul>
+                   {% endfor %}
+               </div>
+       </fieldset>
+       {% endfor %}
+       {% endif %}
+       <hr class="solid">
+       <form method="post" action="{{ url_for('managerProcess', managerName=name) }}">
+            <h3>Open Account:</h3>
+            <label id="usrText" for="usr">ID:</label>
+            <input type="text" id ="usr" name = "c_id" value="{{ data[0] }}" readonly>
+            <label id="usrText" for="usr">Account Type:</label>
+            <select id="dropdown" name="acc_type">
+                <option value="checkings">Checkings</option>
+                <option value="savings">Savings</option>
+            </select>
+            <label id="usrText" for="usr">Balance:</label>
+            <input type="text" id="usr" name="balance" required>
+            <label id="usrText" for="usr">Interest Rate (< 1.00):</label>
+            <input type="text" id="usr" name="int_rate" required>
+            <input id="btn" type="submit" name="openAccount" value="Open Account">
+        </form>
+       <hr class="solid">
+       <form method="post" action="{{ url_for('managerProcess', managerName=name) }}">
+           <h3>Update Customer:</h3>
+           <label id="usrText" for="usr" maxlength="2">State (e.g IL):</label>
+           <input type="text" id="usr" name="state" required>
+           <label id="usrText" for="usr">City:</label>
+           <input type="text" id="usr" name="city" required>
+           <label id="usrText" for="usr">Zip Code:</label>
+           <input type="text" id="usr" name="zipcode" required>
+           <label id="usrText" for="usr">ID:</label>
+           <input type="text" id ="usr" name = "c_id" value="{{ data[0] }}" readonly>
+           <input id="btn" type="submit" name="updateCustomer" value="Update"><br>
+       </form>
+       
     </div>
 </body>
 </html>
