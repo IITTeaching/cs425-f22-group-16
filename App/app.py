@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import ast
 import psycopg2
 import random
+from datetime import datetime, timezone
 
 
 #We are using a Python library called Flask which is used to create web applications.
@@ -196,7 +197,12 @@ def tellerProcess(name, ssn):
                     query = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
                     values = (amount, accID)
                     updateAcc = updateTable(table, query, values)
-                    if updateAcc:
+                    tableT = 'transaction'
+                    queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                    dt = datetime.now(timezone.utc)
+                    valuesT = (accID, 'deposit', amount, dt, 'NULL', customer[0][1])
+                    trans = updateTable(tableT, queryT, valuesT)
+                    if updateAcc and trans:
                         return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS</h1>"
                     else:
                         return "<h1>FAILED! GO BACK TO TRY AGAIN</h1>"
@@ -207,44 +213,70 @@ def tellerProcess(name, ssn):
             amount = request.form['amountW']
             if float(amount) < 0:
                 return "<h1> WITHDRAWAL AMOUNT CANNOT BE NEGATIVE. TRY AGAIN."
-            if accID and amount:
-                table = 'customer'
-                query = f"""SELECT * FROM account WHERE acc_id = '{accID}'"""
-                customer = fetchFromTable(table, query)
-                if customer:
-                    table = 'account'
-                    query = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
-                    values = (amount, accID)
-                    updateAcc = updateTable(table, query, values)
-                    if updateAcc:
-                        return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS</h1>"
-                    else:
-                        return "<h1>FAILED! GO BACK TO TRY AGAIN</h1>"
-            else:
-                return "<h1>FAILED! GO BACK TO TRY AGAIN</h1>"
+            table = 'account'
+            query = f"""SELECT balance FROM account WHERE acc_id = '{accID}'"""
+            balance = fetchFromTable(table, query)
+            if balance:
+                if float(balance[0][0]) - float(amount) < 0:
+                    return "<h1>THE WITHDRAWAL AMOUNT IS MORE THAN YOUR AVAILABLE BALANCE. TRY AGAIN.</h1>"
+                if accID and amount:
+                    table = 'customer'
+                    query = f"""SELECT * FROM account WHERE acc_id = '{accID}'"""
+                    customer = fetchFromTable(table, query)
+                    if customer:
+                        table = 'account'
+                        query = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
+                        values = (amount, accID)
+                        updateAcc = updateTable(table, query, values)
+                        tableT = 'transaction'
+                        queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                        dt = datetime.now(timezone.utc)
+                        valuesT = (accID, 'wthdrwl', amount, dt, customer[0][1], 'NULL')
+                        trans = updateTable(tableT, queryT, valuesT)
+                        if updateAcc and trans:
+                            return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS</h1>"
+                        else:
+                            return "<h1>FAILED! GO BACK TO TRY AGAIN</h1>"
+                else:
+                    return "<h1>FAILED! GO BACK TO TRY AGAIN</h1>"
+            return "<h1>FAILED! GO BACK TO TRY AGAIN</h1>"
         if process == 'Transfer':
             accIDFrom = request.form['accIDFrom']
             accIDTo = request.form['accIDTo']
             amount = request.form['amountTrans']
             if float(amount) < 0:
                 return "<h1> WITHDRAWAL AMOUNT CANNOT BE NEGATIVE. TRY AGAIN."
-            if accIDFrom and accIDTo and amount:
-                if accIDFrom != accIDTo:
-                    table = 'account'
-                    queryFrom = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
-                    queryTo = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
-                    valuesFrom = (amount, accIDFrom)
-                    valuesTo = (amount, accIDTo)
-                    updateTo = updateTable(table, queryFrom, valuesFrom)
-                    updateFrom = updateTable(table, queryTo, valuesTo)
-                    if updateTo and updateFrom:
-                        return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS</h1>"
+            table = 'account'
+            query = f"""SELECT balance FROM account WHERE acc_id = '{accIDFrom}'"""
+            balance = fetchFromTable(table, query)
+            if balance:
+                if float(balance[0][0]) - float(amount) < 0:
+                    return "<h1>THE WITHDRAWAL AMOUNT IS MORE THAN YOUR AVAILABLE BALANCE. TRY AGAIN.</h1>" 
+                if accIDFrom and accIDTo and amount:
+                    if accIDFrom != accIDTo:
+                        table = 'account'
+                        queryFrom = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
+                        queryTo = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
+                        valuesFrom = (amount, accIDFrom)
+                        valuesTo = (amount, accIDTo)
+                        updateTo = updateTable(table, queryFrom, valuesFrom)
+                        updateFrom = updateTable(table, queryTo, valuesTo)
+                        tableT = 'transaction'
+                        queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                        dt = datetime.now(timezone.utc)
+                        valuesT = (accIDFrom, 'transfer', amount, dt, 'NULL', accIDTo)
+                        valuesT2 = (accIDTo, 'trans-dep', amount, dt, accIDFrom, 'NULL')
+                        trans = updateTable(tableT, queryT, valuesT)
+                        trans2 = updateTable(tableT, queryT, valuesT2)
+                        if updateTo and updateFrom and trans and trans2:
+                            return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS</h1>"
+                        else:
+                            return "<h1>FAIL! GO BACK TO TRY AGAIN</h1>"
                     else:
-                        return "<h1>FAIL! GO BACK TO TRY AGAIN</h1>"
+                        return "<h1>FAIL! YOU CAN'T TRANSFER TO THE SAME ACCOUNT. GO BACK TO TRY AGAIN.</h1>"
                 else:
-                    return "<h1>FAIL! YOU CAN'T TRANSFER TO THE SAME ACCOUNT. GO BACK TO TRY AGAIN.</h1>"
-            else:
-                return "<h1>FAILED. GO BACK TO TRY AGAIN.</h1>"
+                    return "<h1>FAILED. GO BACK TO TRY AGAIN.</h1>"
+            return "<h1>FAILED. GO BACK TO TRY AGAIN.</h1>"
         if process == 'Update My Account':
             table = 'teller'
             query = f"""SELECT * FROM teller where ssn = '{ssn}'"""
@@ -261,23 +293,37 @@ def tellerProcess(name, ssn):
             amount = request.form['amountExtTrans']
             if float(amount) < 0:
                 return "<h1> WITHDRAWAL AMOUNT CANNOT BE NEGATIVE. TRY AGAIN."
-            if fromAcc and toAcc and amount:
-                if fromAcc[0] != toAcc[0] and fromAcc[1] != toAcc[1]:
-                    table = 'account'
-                    queryFrom = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
-                    queryTo = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
-                    valuesFrom = (amount, fromAcc[0])
-                    valuesTo = (amount, toAcc[0])
-                    updateTo = updateTable(table, queryFrom, valuesFrom)
-                    updateFrom = updateTable(table, queryTo, valuesTo)
-                    if updateTo and updateFrom:
-                        return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS</h1>"
+            table = 'account'
+            query = f"""SELECT balance FROM account WHERE acc_id = '{fromAcc[0]}'"""
+            balance = fetchFromTable(table, query)
+            if balance:
+                if float(balance[0][0]) - float(amount) < 0:
+                    return "<h1>THE WITHDRAWAL AMOUNT IS MORE THAN YOUR AVAILABLE BALANCE. TRY AGAIN.</h1>" 
+                if fromAcc and toAcc and amount:
+                    if fromAcc[0] != toAcc[0] and fromAcc[1] != toAcc[1]:
+                        table = 'account'
+                        queryFrom = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
+                        queryTo = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
+                        valuesFrom = (amount, fromAcc[0])
+                        valuesTo = (amount, toAcc[0])
+                        updateTo = updateTable(table, queryFrom, valuesFrom)
+                        updateFrom = updateTable(table, queryTo, valuesTo)
+                        tableT = 'transaction'
+                        queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                        dt = datetime.now(timezone.utc)
+                        valuesT = (fromAcc[0], 'ext-trans', amount, dt, 'NULL', toAcc[0])
+                        valuesT2 = (toAcc[0], 'ext-t dep', amount, dt, fromAcc[0], 'NULL')
+                        trans = updateTable(tableT, queryT, valuesT)
+                        trans2 = updateTable(tableT, queryT, valuesT2)
+                        if updateTo and updateFrom and trans and trans2:
+                            return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS</h1>"
+                        else:
+                            return "<h1>FAILED! GO BACK TO TRY AGAIN</h1>"
                     else:
-                        return "<h1>FAILED! GO BACK TO TRY AGAIN</h1>"
+                        return "<h1>FAILED! YOU MUST TRANSFER TO AN EXTERNAL ACCOUNT. GO BACK TO TRY AGAIN.</h1>"
                 else:
-                    return "<h1>FAILED! YOU MUST TRANSFER TO AN EXTERNAL ACCOUNT. GO BACK TO TRY AGAIN.</h1>"
-            else:
-                return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
+                    return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
+            return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
     if updateAccount:
         print("IN UPDATE ACCOUNT")
         state = request.form['state']
@@ -341,8 +387,7 @@ def tellerProcess(name, ssn):
         zip_code = request.form['zip_code']
         salary = request.form['salary']
         branch = request.form['branch'].strip()
-        print(branch)
-        
+
         table = 'customer'
         query = """INSERT INTO customer VALUES (%s,%s,%s,%s,%s,%s)"""
         values = (str(c_id), str(cname), str(state), str(city), int(zip_code), int(salary))
@@ -500,7 +545,12 @@ def customerProcess(name,data):
         values = (float(amount), str(accID))
         print(values)
         updateAcc = updateTable(table, query, values)
-        if updateAcc:
+        tableT = 'transaction'
+        queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+        dt = datetime.now(timezone.utc)
+        valuesT = (accID, 'deposit', amount, dt, 'NULL', accID)
+        trans = updateTable(tableT, queryT, valuesT)
+        if updateAcc and trans:
             return render_template('success_cust.html', name=name, data=customerData)
         else:
             return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
@@ -519,7 +569,12 @@ def customerProcess(name,data):
                 query = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
                 values = (float(amount), str(accID))
                 updateAcc = updateTable(table, query, values)
-                if updateAcc:
+                tableT = 'transaction'
+                queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                dt = datetime.now(timezone.utc)
+                valuesT = (accID, 'wthdrwl', amount, dt, accID, 'NULL')
+                trans = updateTable(tableT, queryT, valuesT)
+                if updateAcc and trans:
                     return render_template('success_cust.html', name=name, data=customerData)
         else:
             return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
@@ -543,7 +598,14 @@ def customerProcess(name,data):
                 if fromAcc != toAcc:
                     updateFromAcc = updateTable(table, queryOne, valuesOne)
                     updateToAcc = updateTable(table, queryTwo, valuesTwo)
-                    if updateFromAcc > 0 and updateToAcc > 0:
+                    tableT = 'transaction'
+                    queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                    dt = datetime.now(timezone.utc)
+                    valuesT = (fromAcc, 'trans', amount, dt, 'NULL', toAcc)
+                    valuesT2 = (toAcc, 't-dep', amount, dt, fromAcc, 'NULL')
+                    trans = updateTable(tableT, queryT, valuesT)
+                    trans2 = updateTable(tableT, queryT, valuesT2)
+                    if updateFromAcc and updateToAcc and trans and trans2:
                         return render_template('success_cust.html', name=name, data=customerData)
                 else:
                     return "<h1>FAILED! YOU CAN'T TRANSFER TO YOUR OWN ACCOUNT. TRY AGAIN.</h1>"
@@ -566,7 +628,14 @@ def customerProcess(name,data):
                 valuesTwo = (float(amount), toAcc)
                 updateFromAcc = updateTable(table, queryOne, valuesOne)
                 updateToAcc = updateTable(table, queryTwo, valuesTwo)
-                if updateFromAcc and updateToAcc:
+                tableT = 'transaction'
+                queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                dt = datetime.now(timezone.utc)
+                valuesT = (fromAcc, 'ext-t', amount, dt, 'NULL', toAcc)
+                valuesT2 = (toAcc, 'ext-t dep', amount, dt, fromAcc, 'NULL')
+                trans = updateTable(tableT, queryT, valuesT)
+                trans2 = updateTable(tableT, queryT, valuesT2)
+                if updateFromAcc and updateToAcc and trans and trans2:
                     return render_template('success_cust.html', name=name, data=customerData)
         else:
             return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
@@ -707,7 +776,12 @@ def managerProcess(managerName):
                     query = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
                     values = (amount, accID)
                     updateAcc = updateTable(table, query, values)
-                    if updateAcc:
+                    tableT = 'transaction'
+                    queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                    dt = datetime.now(timezone.utc)
+                    valuesT = (accID, 'deposit', amount, dt, 'NULL', accID)
+                    trans = updateTable(tableT, queryT, valuesT)
+                    if updateAcc and trans:
                         return "<h1>SUCCESS. GO BACK TO PERFORM MORE ACTIONS.</h1>"
                     else:
                         return "<h1>FAILED. GO BACK TO TRY AGAIN.</h1>"
@@ -722,20 +796,24 @@ def managerProcess(managerName):
             if balance:
                 if float(balance[0][0]) - float(amount) < 0:
                     return "<h1>FAILED! WITHDRAWAL AMOUNT CAN'T BE MORE THAN AVAILABLE BALANCE</h1>" 
-                else:
-                    if accID and amount:
-                        table = 'customer'
-                        query = f"""SELECT * FROM account WHERE acc_id = '{accID}'"""
-                        customer = fetchFromTable(table, query)
-                        if customer:
-                            table = 'account'
-                            query = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
-                            values = (amount, accID)
-                            updateAcc = updateTable(table, query, values)
-                            if updateAcc:
-                                return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS.</h1>"
-                            else:
-                                return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
+                if accID and amount:
+                    table = 'customer'
+                    query = f"""SELECT * FROM account WHERE acc_id = '{accID}'"""
+                    customer = fetchFromTable(table, query)
+                    if customer:
+                        table = 'account'
+                        query = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
+                        values = (amount, accID)
+                        updateAcc = updateTable(table, query, values)
+                        tableT = 'transaction'
+                        queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                        dt = datetime.now(timezone.utc)
+                        valuesT = (accID, 'wthdrwl', amount, dt, accID, 'NULL')
+                        trans = updateTable(tableT, queryT, valuesT)
+                        if updateAcc and trans:
+                            return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS.</h1>"
+                        else:
+                            return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
             else:
                 return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
         if process == 'Transfer':
@@ -751,7 +829,9 @@ def managerProcess(managerName):
                 balance = fetchFromTable(table, queryBal)
                 if balance:
                     if float(balance[0][0]) - float(amount) < 0:
-                        return "<h1>FAILED! THE TRANSFER AMOUNT IS MORE THAN THE AVAILABLE BALANCE. TRY AGAIN.</h1>" 
+                        return "<h1>FAILED! THE TRANSFER AMOUNT IS MORE THAN THE AVAILABLE BALANCE. TRY AGAIN.</h1>"
+                    if accIDFrom == accIDTo:
+                        return "<h1>FAILED! CANNOT TRANSFER TO SAME ACCOUNT. TRY AGAIN.</h1>"
                     else:
                         table = 'customer'
                         queryOne = f"""SELECT * FROM account WHERE acc_id = '{accIDFrom}'"""
@@ -767,7 +847,14 @@ def managerProcess(managerName):
                             valuesTo = (amount, accIDTo)
                             updateTo = updateTable(table, queryFrom, valuesFrom)
                             updateFrom = updateTable(table, queryTo, valuesTo)
-                            if updateTo and updateFrom:
+                            tableT = 'transaction'
+                            queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                            dt = datetime.now(timezone.utc)
+                            valuesT = (accIDFrom, 'transfer', amount, dt, 'NULL', accIDTo)
+                            valuesT2 = (accIDTo, 'trans-dep', amount, dt, accIDFrom, 'NULL')
+                            trans = updateTable(tableT, queryT, valuesT)
+                            trans2 = updateTable(tableT, queryT, valuesT2)
+                            if updateTo and updateFrom and trans and trans2:
                                 return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS.</h1>"
                             else:
                                 return "<h1>FAILED! GO BACK TO PERFORM MORE ACTIONS.</h1>"
@@ -779,21 +866,34 @@ def managerProcess(managerName):
             amount = request.form['amountExtTrans']
             if float(amount) < 0:
                 return "<h1> WITHDRAWAL AMOUNT CANNOT BE NEGATIVE. TRY AGAIN."
-            elif fromAcc and toAcc and amount:
-                if fromAcc[0] != toAcc[0] and fromAcc[1] != toAcc[1]:
-                    table = 'account'
-                    queryFrom = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
-                    queryTo = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
-                    valuesFrom = (amount, fromAcc[0])
-                    valuesTo = (amount, toAcc[0])
-                    updateTo = updateTable(table, queryFrom, valuesFrom)
-                    updateFrom = updateTable(table, queryTo, valuesTo)
-                    if updateTo and updateFrom:
-                        return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS.</h1>"
+            table = 'account'
+            queryBal = f"""SELECT balance FROM account WHERE acc_id='{fromAcc[0]}'"""
+            balance = fetchFromTable(table, queryBal)
+            if balance:
+                if float(balance[0][0]) - float(amount) < 0:
+                    return "<h1>FAILED! THE TRANSFER AMOUNT IS MORE THAN THE AVAILABLE BALANCE. TRY AGAIN.</h1>"
+                if fromAcc and toAcc and amount:
+                    if fromAcc[0] != toAcc[0] and fromAcc[1] != toAcc[1]:
+                        table = 'account'
+                        queryFrom = """UPDATE account SET balance = balance - (%s) WHERE acc_id = (%s)"""
+                        queryTo = """UPDATE account SET balance = balance + (%s) WHERE acc_id = (%s)"""
+                        valuesFrom = (amount, fromAcc[0])
+                        valuesTo = (amount, toAcc[0])
+                        updateTo = updateTable(table, queryFrom, valuesFrom)
+                        updateFrom = updateTable(table, queryTo, valuesTo)
+                        tableT = 'transaction'
+                        queryT = """INSERT INTO transact(acc_id, trans_type, amount, description, t_from, t_to) VALUES(%s,%s,%s,%s,%s,%s)"""
+                        dt = datetime.now(timezone.utc)
+                        valuesT = (fromAcc[0], 'ext-trans', amount, dt, 'NULL', toAcc[0])
+                        valuesT2 = (toAcc[0], 'ext-t dep', amount, dt, fromAcc[0], 'NULL')
+                        trans = updateTable(tableT, queryT, valuesT)
+                        trans2 = updateTable(tableT, queryT, valuesT2)
+                        if updateTo and updateFrom and trans and trans2:
+                            return "<h1>SUCCESS! GO BACK TO PERFORM MORE ACTIONS.</h1>"
+                        else:
+                            return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
                     else:
-                        return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
-                else:
-                    return "<h1>FAILED! YOU MUST TRANSFER TO AN EXTERNAL ACCOUNT. GO BACK TO TRY AGAIN.</h1>"
+                        return "<h1>FAILED! YOU MUST TRANSFER TO AN EXTERNAL ACCOUNT. GO BACK TO TRY AGAIN.</h1>"
             else:
                 return "<h1>FAILED! GO BACK TO TRY AGAIN.</h1>"
         if process == 'Analytics':
@@ -1010,7 +1110,6 @@ def managerProcess(managerName):
             query = """SELECT c_id, sum(balance) AS tot_am FROM customer NATURAL JOIN hasaccount NATURAL JOIN account GROUP BY c_id"""
             data = fetchFromTable('', query)
             return render_template('analytics.html', data=data, title ="Total Balance For Each Customer Across Their Accounts")
-        return "Chose option: " + str(analyticOption)
     
     return render_template('manager_console.html', mName=managerName)
 
