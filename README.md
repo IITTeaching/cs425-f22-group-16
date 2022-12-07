@@ -13,3 +13,8 @@
 
 ### Both our app and database is hosted on a raspberry pi server here: http://192.168.0.116:5000/
 
+# HOW TO USE:
+### Login In Page:
+  #### - To Login and Manager/Teller: 
+         - Username: admin
+         - Password: iit2022
