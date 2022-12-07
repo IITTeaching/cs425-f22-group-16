@@ -14,7 +14,7 @@
 ### Both our app and database is hosted on a raspberry pi server here: http://192.168.0.116:5000/
 
 ## PRIOR TO USING APP:
-##### The app login functionality will not work without som existing data in the database. Therefore, here are some SQL queries to get started:
+##### The app login functionality will not work without some already existing data in the database. Therefore, here are some SQL queries to get started:
     
     INSERT INTO branch VALUES ('B01','IL', 'Chicago', 60411);
     INSERT INTO branch VALUES ('B02','IL', 'Chicago', 60411);
