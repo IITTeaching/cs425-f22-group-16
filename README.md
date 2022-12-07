@@ -30,8 +30,7 @@
     INSERT INTO account VALUES (456, 'checkings', 5693.00, 0.09);
     INSERT INTO account VALUES (789, 'checkings', 1950.00, 0.05);
     
-    INSERT INTO customer VALUES ('C0835', 'Eric Zacarias', 'IL', 'Chicago',
-    60411, 45000.00);
+    INSERT INTO customer VALUES ('C0835', 'Eric Zacarias', 'IL', 'Chicago', 60411, 45000.00);
     INSERT INTO customer VALUES ('C0836', 'Sally Rad', 'IL', 'Chicago', 60411, 50500.00);
     INSERT INTO customer VALUES ('C0842', 'John Doe', 'IL', 'Chicago Heights', 60411, 65240.00);
     
