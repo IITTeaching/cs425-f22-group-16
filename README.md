@@ -11,8 +11,6 @@
 
 ### We created our web app using the Flask web framework in Python.
 
-### Both our app and database is hosted on a raspberry pi server here: http://192.168.0.116:5000/
-
 ## PRIOR TO USING APP:
 ##### The app login functionality will not work without some already existing data in the database. Therefore, here are some SQL queries to get started:
     
@@ -42,7 +40,8 @@
     INSERT INTO usesbranch VALUES ('C0836', 'B02');
     INSERT INTO usesbranch VALUES ('C0842', 'B03');
     
-# HOW TO USE:
+# HOW TO USE: 
+        Feel free to use your app on this raspberry pi server that already has preloaded data: http://192.168.0.116:5000/
 ## Login In Page:
   #### - To Login as a Manager/Teller: 
          - Username: admin
