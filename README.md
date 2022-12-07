@@ -15,6 +15,10 @@
 
 # HOW TO USE:
 ### Login In Page:
-  #### - To Login and Manager/Teller: 
+  #### - To Login as a Manager/Teller: 
          - Username: admin
          - Password: iit2022
+  #### - To Login in as customer:
+         - Username: <An Existing Customer ID in the database>
+         - Password: customer
+  
