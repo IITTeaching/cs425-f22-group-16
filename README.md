@@ -40,9 +40,7 @@
     INSERT INTO usesbranch VALUES ('C0836', 'B02');
     INSERT INTO usesbranch VALUES ('C0842', 'B03');
     
-# HOW TO USE: 
-        Feel free to use our app on this raspberry pi server that already has preloaded data. See Below: 
-   http://192.168.0.116:5000/
+# HOW TO USE:
 ## Login In Page:
   #### - To Login as a Manager/Teller: 
          - Username: admin
