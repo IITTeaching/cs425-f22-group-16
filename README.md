@@ -12,7 +12,7 @@
 ### We created our web app using the Flask web framework in Python.
 
 ## PRIOR TO USING APP:
-##### The app login functionality will not work without some already existing data in the database. Therefore, here are some SQL queries to get started:
+##### The app login functionality will not work without some already existing data in the database. Therefore, here are some SQL queries to get started (use our script to set up the database):
     
     INSERT INTO branch VALUES ('B01','IL', 'Chicago', 60411);
     INSERT INTO branch VALUES ('B02','IL', 'Chicago', 60411);
@@ -41,6 +41,8 @@
     INSERT INTO usesbranch VALUES ('C0842', 'B03');
     
 # HOW TO USE:
+## Requirements
+        Packages needed to run the app are: flask, psycopg2, psycopg2-binary (I do think this package was required, but if errors come up then download this).
 ## Login In Page:
   #### - To Login as a Manager/Teller: 
          - Username: admin
@@ -95,4 +97,6 @@
     - Click on 'Update Account Info' to:
       - View your customer account info
       - Or to update your account info.
+ 
+ ## Due to time constraints some functionalities weren't implemented like: statements 
       
