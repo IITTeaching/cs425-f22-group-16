@@ -42,7 +42,7 @@
     
 # HOW TO USE:
 ## Requirements
-        Packages needed to run the app are: flask, psycopg2, psycopg2-binary (I do think this package was required, but if errors come up then download this).
+        Packages needed to run the app are: flask, psycopg2, psycopg2-binary (I don't think this package is required to run the app, but if errors come up then download this).
         Once downloaded on your machine, open the App/ through a terminal and type in 'python app.py' this should run the app on your localhost. Copy and paste the link given in your browser.
         
         Make sure to update the connection parameters in our app.py if required! Such as database name, password, or port number.
